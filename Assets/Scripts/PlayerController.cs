@@ -3,11 +3,16 @@ public class ControlJugador : MonoBehaviour
 {
     public float rapidezDesplazamiento = 10.0f;
     Animation Animation;
+
     Vector3 Movimiento = Vector2.zero;
-    Rigidbody rb;
-    public LayerMask capaPiso;
+    Vector2 input;
     public float magnitudSalto;
+    Rigidbody rb;
+
+    public LayerMask capaPiso;
     public CapsuleCollider col;
+
+    bool saltando = false;
 
     void Start()
     {
@@ -17,31 +22,38 @@ public class ControlJugador : MonoBehaviour
         col = GetComponent<CapsuleCollider>();
 
     }
-    void Update()
-    {
-        Movimiento.x = Input.GetAxis("Horizontal") * rapidezDesplazamiento;
-        Movimiento.z =Input.GetAxis("Vertical") * rapidezDesplazamiento;
 
-        Movimiento *= Time.deltaTime;
-        transform.Translate(Movimiento.x, 0, Movimiento.z);
+    void Update(){
+        if (Input.GetKeyDown(KeyCode.Space) && EstaEnPiso()){
+            rb.AddForce(Vector3.up * magnitudSalto, ForceMode.Impulse);
+            Animation.Play("PlayerJump");
+            saltando = true;
+        }
 
-        if (EstaEnPiso())
+        if (EstaEnPiso() && rb.velocity.y < 0){
+            saltando = false;
+        }
+
+        input.x = Input.GetAxis("Horizontal") ;
+        input.y = Input.GetAxis("Vertical");
+
+        Movimiento.x = input.x * rapidezDesplazamiento;
+        Movimiento.z = input.y * rapidezDesplazamiento;
+        
+        if (saltando == false)
         {
-            if (Movimiento != Vector3.zero)
+            if (input != Vector2.zero)
             {
-                Animation.Play("Movement");
+                Animation.Play("PlayerMovement");
             }
             else
             {
-                Animation.Play("Idle");
+                Animation.Play("PlayerIdle");
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.Space) && EstaEnPiso())
-        {
-            rb.AddForce(Vector3.up * magnitudSalto, ForceMode.Impulse);
-            Animation.Play("Jump");
-        }
+        
+        Movimiento *= Time.deltaTime;
+        transform.Translate(Movimiento.x, 0, Movimiento.z);
 
         if (Input.GetKeyDown("escape"))
         {
@@ -52,7 +64,7 @@ public class ControlJugador : MonoBehaviour
     private bool EstaEnPiso()
     {
         return Physics.CheckCapsule(col.bounds.center, new Vector3(col.bounds.center.x,
-        col.bounds.min.y, col.bounds.center.z), col.radius * .9f, capaPiso);
+        col.bounds.min.y, col.bounds.center.z), col.radius * .1f, capaPiso);
     }
 
 }
