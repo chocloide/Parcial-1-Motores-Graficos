@@ -1,22 +1,18 @@
 using UnityEngine;
-public class ControlMirarCamara : MonoBehaviour
+public class CamaraController : MonoBehaviour
 {
-    Vector2 mouseMirar;
-    Vector2 suavidadV;
-    public float sensibilidad = 5.0f;
-    public float suavizado = 2.0f;
-    GameObject jugador;
+    Vector3 offset = Vector3.zero;
+    public GameObject jugador;
 
     void Start()
     {
-        jugador = this.transform.parent.gameObject;
+        offset = transform.position - jugador.transform.position;
     }
-    void Update()
+    void LateUpdate()
     {
-        var md = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
-        md = Vector2.Scale(md, new Vector2(sensibilidad * suavizado, sensibilidad * suavizado));
-        suavidadV.x = Mathf.Lerp(suavidadV.x, md.x, 1f / suavizado);
-        mouseMirar += suavidadV;
-        jugador.transform.localRotation = Quaternion.AngleAxis(mouseMirar.x, jugador.transform.up);
+        transform.position = jugador.transform.position + offset;
+        //transform.position.x = offset.x + jugador.transform.position.x;
+        //transform.position.y = offset.y + jugador.transform.position.y;
+        //jugador.transform.localRotation = Quaternion.AngleAxis(mouseMirar.x, jugador.transform.up);
     }
 }
