@@ -3,6 +3,7 @@ public class CamaraController : MonoBehaviour
 {
     Vector3 offset = Vector3.zero;
     public GameObject jugador;
+    float distance;
 
     void Start()
     {
@@ -10,9 +11,8 @@ public class CamaraController : MonoBehaviour
     }
     void LateUpdate()
     {
-        transform.position = jugador.transform.position + offset;
-        //transform.position.x = offset.x + jugador.transform.position.x;
-        //transform.position.y = offset.y + jugador.transform.position.y;
-        //jugador.transform.localRotation = Quaternion.AngleAxis(mouseMirar.x, jugador.transform.up);
+        distance = Vector3.Distance(transform.position, jugador.transform.position);
+        Debug.Log(distance);
+        transform.position = Vector3.Lerp(transform.position, jugador.transform.position + offset, 15 * Time.deltaTime);
     }
 }

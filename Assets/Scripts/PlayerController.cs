@@ -12,12 +12,12 @@ public class PlayerController : MonoBehaviour
     public LayerMask capaPiso;
     public CapsuleCollider col;
 
-    private enum States {Piso, Aire };
+    private enum States {Idle, Run, Jump };
     States current_state;
 
     void Start()
     {
-        current_state = States.Piso;
+        current_state = States.Idle;
         rb = GetComponent<Rigidbody>();
         Animation = GetComponent<Animation>();
         col = GetComponent<CapsuleCollider>();
@@ -26,52 +26,51 @@ public class PlayerController : MonoBehaviour
 
     void Update(){
         input.x = Input.GetAxis("Horizontal");
-        input.y = Input.GetAxis("Vertical");
-        Movimiento = new Vector3(input.x, 0.0f, input.y);
+        Movimiento = new Vector3(input.x, 0.0f, 1.0f);
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Movimiento),15 * Time.deltaTime);
 
-        if (input != Vector2.zero){
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Movimiento),15 * Time.deltaTime);
-            //Mathf.LerpAngle(transform.rotation, Vector3.Angle(transform.forward, Movimiento), Time.deltaTime),
-        }
-
-        if (current_state == States.Piso)
+        switch (current_state)
         {
-            PisoState();
-        }
-        else if (current_state == States.Aire)
-        {
-            AireState();
+            case States.Idle:
+                IdleState();
+                break;
+            case States.Run:
+                RunState();
+                break;
+            case States.Jump:
+                JumpState();
+                break;
         }
     }
 
-    private void PisoState()
+    private void IdleState()
     {
-        transform.Translate(Movimiento * rapidezDesplazamiento * Time.deltaTime, Space.World);
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            current_state = States.Run;
+        }
+    }
 
-        if (input != Vector2.zero)
-        {
-            Animation.Play("PlayerMovement");
-        }
-        else
-        {
-            Animation.Play("PlayerIdle");
-        }
+    private void RunState()
+    {
+        Animation.Play("PlayerMovement");
+        transform.Translate(Movimiento * rapidezDesplazamiento * Time.deltaTime, Space.World);
 
         if (Input.GetKeyDown(KeyCode.Space) && EstaEnPiso()){
             rb.AddForce(Vector3.up * magnitudSalto, ForceMode.Impulse);
             Animation.Play("PlayerJump");
-            current_state = States.Aire;
+            current_state = States.Jump;
         }
     }
 
-    private void AireState(){
+    private void JumpState(){
 
         transform.Translate(Movimiento * rapidezDesplazamiento * Time.deltaTime, Space.World);
 
         Animation.Play("PlayerJump");
         if (EstaEnPiso() && rb.velocity.y < 0)
         {
-            current_state = States.Piso;
+            current_state = States.Run;
         }
     }
 
