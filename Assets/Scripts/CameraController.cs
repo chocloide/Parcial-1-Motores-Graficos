@@ -29,7 +29,7 @@ public class CamaraController : MonoBehaviour
         
     }
 
-    public void addTrauma(float Trauma){
+    public void setTrauma(float Trauma){
         trauma = Trauma;
     }
 
