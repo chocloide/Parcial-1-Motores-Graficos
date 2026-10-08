@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 public class PlayerController : MonoBehaviour
 {
     public float rapidezDesplazamiento = 10.0f;
     public float magnitudSalto;
-    public float knockbackTime = 0f;
+    float knockbackTime = 0f;
     public float knockbackDuration;
 
     Vector3 Movimiento = Vector3.zero;
@@ -38,6 +40,12 @@ public class PlayerController : MonoBehaviour
             col.height = 1.8f;
             col.center = new Vector3(0, 0.45f, 0);
         }
+        else if (collision.collider.gameObject.tag == "Meta")
+        {
+            SceneManager.LoadSceneAsync(2);
+        }
+
+
     }
 
     void Update(){
@@ -46,8 +54,10 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Movimiento),15 * Time.deltaTime);
 
         //Maquina de estados simple
-        switch (current_state)
-        {
+        switch (current_state){
+            case States.Idle:
+                IdleState();
+                break;
             case States.Run:
                 RunState();
                 break;
@@ -67,23 +77,30 @@ public class PlayerController : MonoBehaviour
         current_state= States.Run;
     }
 
+    private void IdleState(){
+        Animation.Play("PlayerIdle");
+    }
+
     private void RunState(){
         Animation.Play("PlayerMovement");
         transform.Translate(Movimiento * rapidezDesplazamiento * Time.deltaTime, Space.World);
 
         if (EstaEnPiso()){
-            if (Input.GetKeyDown(KeyCode.Space)){
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
                 rb.AddForce(Vector3.up * magnitudSalto, ForceMode.Impulse);
                 current_state = States.Jump;
                 audioManager.PlayAudio(0);
             }
-            if (Input.GetKeyDown(KeyCode.S)){
-                col.height = 0.9f;
-                col.center = new Vector3(0, 0, 0);
-                current_state = States.Slide;
-                audioManager.PlayAudio(1);
-            }
         }
+        if (Input.GetKeyDown(KeyCode.S)){
+            rb.AddForce(Vector3.down * 10, ForceMode.Impulse);
+            col.height = 0.9f;
+            col.center = new Vector3(0, 0, 0);
+            current_state = States.Slide;
+            audioManager.PlayAudio(1);
+            }
+        
     }
 
     private void JumpState(){

@@ -30,6 +30,14 @@ public class Chronometer : MonoBehaviour
         active = false;
     }
 
+    public void restart(){
+        time = 0;
+        minutes = 0;
+        seconds = 0;
+        mil_seconds = 0;
+        active = false;
+    }
+
     void cronometro(){
         time += Time.deltaTime;
         //Mathf.FloorToInt Redondea el valor hacia abajo y elimina los decimales 

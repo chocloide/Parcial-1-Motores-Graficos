@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
-
+    //SerializeField Permite que la variable sea visible en el inspector y que sea privada
     [SerializeField] private AudioClip[] audios; 
     private AudioSource audioSource;
     
@@ -15,5 +15,6 @@ public class AudioManager : MonoBehaviour
     public void PlayAudio(int id , float volumen = 0.8f){
         audioSource.PlayOneShot(audios[id], volumen);
     }
+
 
 }

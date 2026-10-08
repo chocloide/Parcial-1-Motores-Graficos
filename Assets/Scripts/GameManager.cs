@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class GameManager : MonoBehaviour
 {
     public PlayerController Jugador;
@@ -8,11 +9,11 @@ public class GameManager : MonoBehaviour
 
     bool Started = false;
 
-    private void Update()
-    {
+    private void Update(){
         if (Input.GetKeyDown(KeyCode.Space) && Started == false){
             Started = true;
             ComenzarJuego();
+            
         }
     }
 
@@ -22,4 +23,5 @@ public class GameManager : MonoBehaviour
         Jugador.transform.position = new Vector3(0f, 0f, -4f);
         Cronometro.start_count();
     }
+
 }
