@@ -6,15 +6,19 @@ public class GameManager : MonoBehaviour
     public PlayerController Jugador;
     public Chronometer Cronometro;
 
-    void Start(){
-        ComenzarJuego();
-    }
-    
-    void Update(){
+    bool Started = false;
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && Started == false){
+            Started = true;
+            ComenzarJuego();
+        }
     }
 
     void ComenzarJuego(){
         Jugador.startPlayer();
+        Started = true;
         Jugador.transform.position = new Vector3(0f, 0f, -4f);
         Cronometro.start_count();
     }

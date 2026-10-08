@@ -85,7 +85,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 540a432c30c3dfa45b368e45b15d1d9e,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 451203522356418978}
+      addedObject: {fileID: 2055540021311227522}
   m_SourcePrefab: {fileID: 100100000, guid: 540a432c30c3dfa45b368e45b15d1d9e, type: 3}
 --- !u!1 &3641531693335278147 stripped
 GameObject:
@@ -93,8 +93,8 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 4487898712720166674}
   m_PrefabAsset: {fileID: 0}
---- !u!135 &451203522356418978
-SphereCollider:
+--- !u!65 &2055540021311227522
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -112,5 +112,5 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.016363619
-  m_Center: {x: 0, y: 0, z: 0.01}
+  m_Size: {x: 0.025, y: 0.025, z: 0.032727238}
+  m_Center: {x: 0, y: 0, z: 0.012963618}

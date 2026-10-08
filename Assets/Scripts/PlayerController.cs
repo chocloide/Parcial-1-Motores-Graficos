@@ -3,6 +3,8 @@ public class PlayerController : MonoBehaviour
 {
     public float rapidezDesplazamiento = 10.0f;
     public float magnitudSalto;
+    public float knockbackTime = 0f;
+    public float knockbackDuration;
 
     Vector3 Movimiento = Vector3.zero;
     Vector2 input;
@@ -17,38 +19,24 @@ public class PlayerController : MonoBehaviour
     private enum States {Idle, Run, Jump, Slide,Knockback };
     States current_state;
 
-    void Start()
-    {
-
+    void Start(){
         rb = GetComponent<Rigidbody>();
         Animation = GetComponent<Animation>();
         col = GetComponent<CapsuleCollider>();
-
     }
 
-    void osbtacleDetection()
-    {
-        Ray rayTop = new Ray(transform.position + col.center * 2, transform.forward);
-        Ray rayBotton = new Ray(transform.position, transform.forward);
-        RaycastHit hit;
-        Debug.DrawRay(rayTop.origin, rayTop.direction * 0.65f, Color.blue);
-        Debug.DrawRay(rayBotton.origin, rayBotton.direction * 0.65f, Color.green);
-        
-        if (Physics.Raycast(rayTop, out hit, 0.65f) || Physics.Raycast(rayBotton, out hit, 0.65f))
-        {
-            if (hit.collider.tag == "Obstaculo" && current_state != States.Knockback)
-            {
-                camaraController.setTrauma(1f);
-                rb.AddForce(Vector3.back * 10, ForceMode.Force);
-                rb.AddForce(Vector3.up * 10, ForceMode.Force);
+    private void OnCollisionEnter(Collision collision){
+        if (collision.collider.gameObject.tag == "Obstaculo"){
+            camaraController.setTrauma(1f);
+            rb.AddForce(Vector3.back * 200, ForceMode.Force);
+            rb.AddForce(Vector3.up * 150, ForceMode.Force);
 
-                Animation.Play("PlayerKnock");
-                current_state = States.Knockback;
-                audioManager.PlayAudio(2,0.2f);
+            Animation.Play("PlayerKnock");
+            current_state = States.Knockback;
+            audioManager.PlayAudio(2, 0.8f);
 
-                col.height = 1.8f;
-                col.center = new Vector3(0, 0.45f, 0);
-            }
+            col.height = 1.8f;
+            col.center = new Vector3(0, 0.45f, 0);
         }
     }
 
@@ -56,8 +44,6 @@ public class PlayerController : MonoBehaviour
         input.x = Input.GetAxis("Horizontal");
         Movimiento = new Vector3(input.x, 0.0f, 1.0f);
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Movimiento),15 * Time.deltaTime);
-
-        osbtacleDetection();
 
         //Maquina de estados simple
         switch (current_state)
@@ -104,9 +90,15 @@ public class PlayerController : MonoBehaviour
         transform.Translate(Movimiento * rapidezDesplazamiento * Time.deltaTime, Space.World);
         Animation.Play("PlayerJump");
 
-        if (!Input.GetKey(KeyCode.Space) && rb.velocity.y >= 3.5f){
-            rb.AddForce(Vector3.down , ForceMode.Impulse);
+        if (Input.GetKeyDown(KeyCode.S)){
+            rb.AddForce(Vector3.down * 10, ForceMode.Impulse);
+            current_state= States.Slide;
+            col.height = 0.9f;
+            col.center = new Vector3(0, 0, 0);
+            current_state = States.Slide;
+            audioManager.PlayAudio(1);
         }
+
         if (EstaEnPiso() && rb.velocity.y < 0){
             current_state = States.Run;
         }
@@ -133,11 +125,13 @@ public class PlayerController : MonoBehaviour
         }
     }
     private void KnockState(){
-        
+        knockbackTime += Time.deltaTime;
 
-        if (EstaEnPiso()){
+        if (knockbackTime >= knockbackDuration && EstaEnPiso()){
+            knockbackTime = 0;
             current_state = States.Run;
         }
+
     }
 
     private bool EstaEnPiso(){
