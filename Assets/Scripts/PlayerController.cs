@@ -12,13 +12,14 @@ public class PlayerController : MonoBehaviour
     Animation Animation;
     Rigidbody rb;
     public CamaraController camaraController;
+    public AudioManager audioManager;
 
     private enum States {Idle, Run, Jump, Slide,Knockback };
     States current_state;
 
     void Start()
     {
-        current_state = States.Idle;
+
         rb = GetComponent<Rigidbody>();
         Animation = GetComponent<Animation>();
         col = GetComponent<CapsuleCollider>();
@@ -35,12 +36,16 @@ public class PlayerController : MonoBehaviour
         
         if (Physics.Raycast(rayTop, out hit, 0.65f) || Physics.Raycast(rayBotton, out hit, 0.65f))
         {
-            if (hit.collider.tag == "Obstaculo")
+            if (hit.collider.tag == "Obstaculo" && current_state != States.Knockback)
             {
                 camaraController.setTrauma(1f);
                 rb.AddForce(Vector3.back * 10, ForceMode.Force);
                 rb.AddForce(Vector3.up * 10, ForceMode.Force);
+
+                Animation.Play("PlayerKnock");
                 current_state = States.Knockback;
+                audioManager.PlayAudio(2,0.2f);
+
                 col.height = 1.8f;
                 col.center = new Vector3(0, 0.45f, 0);
             }
@@ -57,9 +62,6 @@ public class PlayerController : MonoBehaviour
         //Maquina de estados simple
         switch (current_state)
         {
-            case States.Idle:
-                IdleState();
-                break;
             case States.Run:
                 RunState();
                 break;
@@ -75,10 +77,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void IdleState(){
-        if (Input.GetKeyDown(KeyCode.Space)){
-            current_state = States.Run;
-        }
+    public void startPlayer(){
+        current_state= States.Run;
     }
 
     private void RunState(){
@@ -89,11 +89,13 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space)){
                 rb.AddForce(Vector3.up * magnitudSalto, ForceMode.Impulse);
                 current_state = States.Jump;
+                audioManager.PlayAudio(0);
             }
             if (Input.GetKeyDown(KeyCode.S)){
                 col.height = 0.9f;
                 col.center = new Vector3(0, 0, 0);
                 current_state = States.Slide;
+                audioManager.PlayAudio(1);
             }
         }
     }
@@ -110,8 +112,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void SlideState()
-    {
+    private void SlideState(){
         Animation.Play("PlayerSlide");
         transform.Translate(Movimiento * rapidezDesplazamiento * Time.deltaTime, Space.World);
 
@@ -120,6 +121,7 @@ public class PlayerController : MonoBehaviour
                 rb.AddForce(Vector3.up * magnitudSalto, ForceMode.Impulse);
                 rb.AddForce(Vector3.forward * 5, ForceMode.Impulse);
                 current_state = States.Jump;
+                audioManager.PlayAudio(0);
                 col.height = 1.8f;
                 col.center = new Vector3(0, 0.45f, 0);
             }
@@ -131,7 +133,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     private void KnockState(){
-        Animation.Play("PlayerIdle");
+        
 
         if (EstaEnPiso()){
             current_state = States.Run;
